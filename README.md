@@ -1,252 +1,81 @@
-# GrubDash Backend and API
-GrubDash is a fictional company that operates an online food ordering and food delivery platform. 
+# GrubDash API
 
-For this Thinkful project, I set up a RESTful API, wrote custom validation functions, created route handlers, and built specific API endpoints. 
-Of note, the front-end application was provided for this assignment.
+A Node.js and Express coursework API for a fictional food delivery service. It demonstrates routing, request validation, error handling, and automated API tests for managing dishes and orders.
 
-## Links
-- [App Demo](https://grub-dash-front-end-xi.vercel.app/)
-- [App Documentation](https://github.com/angelalouh/project-grubdash-app)
+## Live demo
 
-## Screenshot
-### Home Page:
-![home](/screenshots/home.jpg)
+[Open GrubDash](https://grubdash-portfolio-demo.vercel.app/demo/) — browse dishes, add items to the cart, and submit a fictional order. The dashboard supports sample dish and order updates. This replacement serves the frontend and API together; it does not use the retired Heroku backend.
 
-## Technology
-- Built with Node.js and Express server framework
+Use fictional details only. The demo has shared, temporary sample data; it does not place real orders or take payments.
 
-## API Documentation
-All requests return JSON response. All post requests require application/json body, and return JSON response.
+## Project context and contributions
 
-### Endpoints for dishes:
-**Get Dishes:** GET to `/dishes`
-- Requests all existing dish data.
-- Successful GET requests will return an array of JSON objects representing the saved dishes. The response from the server should look like the following:
-```
-{
-  "data": [
-    {
-      "id": "d351db2b49b69679504652ea1cf38241",
-      "name": "Dolcelatte and chickpea spaghetti",
-      "description": "Spaghetti topped with a blend of dolcelatte and fresh chickpeas",
-      "price": 19,
-      "image_url": "https://images.pexels.com/photos/1279330/pexels-photo-1279330.jpeg?h=530&w=350"
-    }
-    // ...
-  ]
-}
+This project began as a Thinkful assignment. The frontend and course scaffolding were provided; my work focused on backend endpoints, route handlers, and custom validation. A subsequent portfolio refresh adds regression tests, repairs validation and identity handling, and documents setup and limitations. This is an educational project, not commissioned client work.
+
+## Run locally
+
+Verified with Node.js 22.14.0 and npm 10.9.2. From the repository root:
+
+```sh
+npm ci --ignore-scripts
+npm test
+npm run build:demo
+npm start
 ```
 
-**Create New Dish:** POST to `/dishes`
-- POST request will be sent with a single JSON object like so:
-```
-{
-  "data": {
-    "name": "Dolcelatte and chickpea spaghetti",
-    "description": "Spaghetti topped with a blend of dolcelatte and fresh chickpeas",
-    "price": 19,
-    "image_url": "https://images.pexels.com/photos/1279330/pexels-photo-1279330.jpeg?h=530&w=350"
-  }
-}
-```
-- Successful POST requests will return the newly created dish as a JSON object. The response from the server should look like the following:
-```
-{
-  "data": {
-    "id": "d351db2b49b69679504652ea1cf38241",
-    "name": "Dolcelatte and chickpea spaghetti",
-    "description": "Spaghetti topped with a blend of dolcelatte and fresh chickpeas",
-    "price": 19,
-    "image_url": "https://images.pexels.com/photos/1279330/pexels-photo-1279330.jpeg?h=530&w=350"
-  }
-}
+The server listens at http://localhost:5000 by default. Set the optional PORT environment variable to use another port. Open http://localhost:5000/demo/ for the restored frontend. No API keys or external services are required. Run npm run start:dev for development with automatic restarts.
+
+## Try the API
+
+Open http://localhost:5000/dishes to inspect seeded dishes. With the server running, this command creates a dish using Node's built-in fetch:
+
+```sh
+node -e "fetch('http://localhost:5000/dishes', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({data:{name:'Vegetable soup',description:'A sample dish',price:500,image_url:'https://example.com/soup.jpg'}})}).then(async r => console.log(r.status, await r.json()))"
 ```
 
-**Get Specific Dish:** GET to `/dishes/:dishId`
-- Requests a specific dish by `:dishId`
-- Successful GET requests will return a JSON object. The response from the server should look like this:
-```
-{
-  "data": {
-    "id": "d351db2b49b69679504652ea1cf38241",
-    "name": "Dolcelatte and chickpea spaghetti",
-    "description": "Spaghetti topped with a blend of dolcelatte and fresh chickpeas",
-    "price": 19,
-    "image_url": "https://images.pexels.com/photos/1279330/pexels-photo-1279330.jpeg?h=530&w=350"
-  }
-}
-```
+A successful creation returns HTTP 201 and the saved object inside a data property, including a generated ID. The example image URL is illustrative.
 
-**Update a Dish:** PUT to `/dishes/:dishId`
-- PUT request will be sent with a single JSON object like so:
-```
-{
-  "data": {
-    "id": "3c637d011d844ebab1205fef8a7e36ea",
-    "name": "Century Eggs",
-    "description": "Whole eggs preserved in clay and ash for a few months",
-    "image_url": "some-valid-url",
-    "price": "17"
-  }
-}
-```
-- Note: The `id` property isn't required in the body of the request, but if it is present, it must match `:dishId` from the route.
-- The response from the server should look like the following:
-```
-{
-  "data": {
-    "id": "3c637d011d844ebab1205fef8a7e36ea",
-    "name": "Century Eggs",
-    "description": "Whole eggs preserved in clay and ash for a few months",
-    "image_url": "some-valid-url",
-    "price": "17"
-  }
-}
-```
+## Endpoints
 
-### Endpoints for orders:
-**Get Orders:** GET to `/orders`
-- Requests a list of all existing order data.
-- Successful GET requests will return an array of JSON objects representing the saved orders. The response from the server should look like the following:
-```
-{
-  "data": [
-    {
-      "id": "5a887d326e83d3c5bdcbee398ea32aff",
-      "deliverTo": "308 Negra Arroyo Lane, Albuquerque, NM",
-      "mobileNumber": "(505) 143-3369",
-      "status": "delivered",
-      "dishes": [
-        {
-          "id": "d351db2b49b69679504652ea1cf38241",
-          "name": "Dolcelatte and chickpea spaghetti",
-          "description": "Spaghetti topped with a blend of dolcelatte and fresh chickpeas",
-          "image_url": "https://images.pexels.com/photos/1279330/pexels-photo-1279330.jpeg?h=530&w=350",
-          "price": 19,
-          "quantity": 2
-        }
-        // ...
-      ]
-    }
-    // ...
-  ]
-}
-```
+| Method | Path | Behavior |
+|---|---|---|
+| GET | /dishes | List dishes |
+| POST | /dishes | Create a dish |
+| GET | /dishes/:dishId | Read a dish |
+| PUT | /dishes/:dishId | Replace editable dish fields |
+| GET | /orders | List orders |
+| POST | /orders | Create an order |
+| GET | /orders/:orderId | Read an order |
+| PUT | /orders/:orderId | Replace editable order fields |
+| DELETE | /orders/:orderId | Delete a pending order |
 
-**Create New Order:** POST to `/orders`
-- POST request will be sent with a single JSON object like so:
-```
-{
-  "data": {
-    "deliverTo": "308 Negra Arroyo Lane, Albuquerque, NM",
-    "mobileNumber": "(505) 143-3369",
-    "status": "delivered",
-    "dishes": [
-      {
-        "id": "d351db2b49b69679504652ea1cf38241",
-        "name": "Dolcelatte and chickpea spaghetti",
-        "description": "Spaghetti topped with a blend of dolcelatte and fresh chickpeas",
-        "image_url": "https://images.pexels.com/photos/1279330/pexels-photo-1279330.jpeg?h=530&w=350",
-        "price": 19,
-        "quantity": 2
-      }
-    ]
-  }
-}
-```
-- Note: Each dish in the Order's `dishes` property is a complete copy of the dish, rather than a reference to the dish by ID. This is so the order does not change 
-retroactively if the dish data is updated some time after the order is created.
-- Successful POST requests will return the newly created order as a JSON object. The response from the server should look like the following:
-```
-{
-  "data": {
-    "id": "5a887d326e83d3c5bdcbee398ea32aff",
-    "deliverTo": "308 Negra Arroyo Lane, Albuquerque, NM",
-    "mobileNumber": "(505) 143-3369",
-    "status": "delivered",
-    "dishes": [
-      {
-        "id": "d351db2b49b69679504652ea1cf38241",
-        "name": "Dolcelatte and chickpea spaghetti",
-        "description": "Spaghetti topped with a blend of dolcelatte and fresh chickpeas",
-        "image_url": "https://images.pexels.com/photos/1279330/pexels-photo-1279330.jpeg?h=530&w=350",
-        "price": 19,
-        "quantity": 2
-      }
-    ]
-  }
-}
-```
+POST and PUT bodies use a JSON data object. PUT requires the complete editable record, rather than a partial patch. Dish fields are name, description, image_url, and a positive integer price. This demo uses integer price values without a currency-conversion feature.
 
-**Get Order by ID:** GET to `/orders/:orderId`
-- Requests a specific order by `:orderId`
-- Successful GET requests will return a JSON object. The response from the server should look like this:
-```
-{
-  "data": {
-    "id": "f6069a542257054114138301947672ba",
-    "deliverTo": "1600 Pennsylvania Avenue NW, Washington, DC 20500",
-    "mobileNumber": "(202) 456-1111",
-    "status": "out-for-delivery",
-    "dishes": [
-      {
-        "id": "90c3d873684bf381dfab29034b5bba73",
-        "name": "Falafel and tahini bagel",
-        "description": "A warm bagel filled with falafel and tahini",
-        "image_url": "https://images.pexels.com/photos/4560606/pexels-photo-4560606.jpeg?h=530&w=350",
-        "price": 6,
-        "quantity": 1
-      }
-    ]
-  }
-}
-```
+Orders require deliverTo, mobileNumber, and a nonempty dishes array whose entries have positive integer quantities. Include status explicitly when creating an order intended for further workflow actions. Updates require one of pending, preparing, out-for-delivery, or delivered. Existing delivered orders cannot be modified; only pending orders can be deleted. Dish entries are snapshots, not live references to the dishes collection.
 
-**Update Order:** PUT to `/orders/:orderId`
-- PUT request will be sent with a single JSON object like so:
-```
-{
-  "data": {
-    "deliverTo": "Rick Sanchez (C-132)",
-    "mobileNumber": "(202) 456-1111",
-    "status": "delivered",
-    "dishes": [
-      {
-        "id": "90c3d873684bf381dfab29034b5bba73",
-        "name": "Falafel and tahini bagel",
-        "description": "A warm bagel filled with falafel and tahini",
-        "image_url": "https://images.pexels.com/photos/4560606/pexels-photo-4560606.jpeg?h=530&w=350",
-        "price": 6,
-        "quantity": 1
-      }
-    ]
-  }
-}
-```
-- Note: The `id` property isn't required in the body of the request, but if it is present, it must match `:orderId` from the route.
-- The response from the server should look like the following:
-```
-{
-  "data": {
-    "id": "f6069a542257054114138301947672ba",
-    "deliverTo": "Rick Sanchez (C-132)",
-    "mobileNumber": "(202) 456-1111",
-    "status": "delivered",
-    "dishes": [
-      {
-        "id": "90c3d873684bf381dfab29034b5bba73",
-        "name": "Falafel and tahini bagel",
-        "description": "A warm bagel filled with falafel and tahini",
-        "image_url": "https://images.pexels.com/photos/4560606/pexels-photo-4560606.jpeg?h=530&w=350",
-        "price": 6,
-        "quantity": 1
-      }
-    ]
-  }
-}
-```
+Existing record IDs remain stable on update. A nonempty submitted ID must match the route. Unsupported methods return 405; unknown records return 404; validation failures return 400 with an error message. Successful deletion returns 204 without a body.
 
-**Delete Order:** DELETE to `/orders/:orderId`
-- DELETE request will be sent without a request body.
-- Note: If the given `:orderId` does not match an existing order, the server should respond with `404`.
-- A successful DELETE request will result in a response status code of 204 and no response body.
+## Tests and design
+
+Run npm test for the original route suites and added regression tests. The regression suite covers rejected quantities, invalid statuses, delivered-order behavior, stable dish IDs, fractional prices, malformed data, and stopping middleware after rejection.
+
+Controllers separate validation middleware from route handlers. Data arrays keep the exercise easy to run without a database; this is also its main persistence limitation. Tests exercise HTTP behavior through the application and confirm that rejected requests leave stored data unchanged.
+
+## Limitations
+
+- All changes live in process memory. They can reset on restarts, deployments, or when the hosting platform serves another function instance. There is no database or durable order history.
+- No authentication, authorization, rate limiting, payment handling, or durable audit history is implemented. The public demo is an unauthenticated shared sandbox: use fictional data only.
+- Validation is intentionally limited; this is not a complete ordering system or a production service.
+- The historical frontend demo is broken: its deployed JavaScript targets https://grubdash-back-end.herokuapp.com, whose /dishes endpoint returned HTTP 404 with a Heroku "No such app" page on October 21, 2026. The frontend HTML still loads, but this does not constitute a working demo. The replacement demo linked above has been verified separately.
+
+## Frontend restoration and deployment
+
+The supplied React frontend was restored from the old deployment's public source map, with attribution in frontend/README.md. API requests now use the same origin. The refresh also fixes order-edit navigation, saving the delivered status, and the mobile-number field label/default. Bootstrap and supporting UI assets are bundled locally. The existing frontend versions are retained for compatibility; this is not a UI framework modernization.
+
+Vercel detects src/app.js as the Express entrypoint, builds the UI with npm run build:demo, and serves public/demo assets. The Vercel configuration is included. Automatic Git deployments are not connected yet; the verified deployment was made using the Vercel CLI.
+
+## Historical frontend screenshot
+
+The assignment's supplied frontend provides context for the API. This screenshot does not establish a currently working deployment or original UI design.
+
+![Historical supplied frontend](screenshots/home.jpg)

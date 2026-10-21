@@ -8,10 +8,10 @@ const nextId = require("../utils/nextId");
 
 // Validation Functions for POST and PUT requests:
 function bodyHasDeliverToProperty(req, res, next) {
-  const { data = {} } = req.body;
+  const data = req.body.data || {};
 
   if (!data.deliverTo) {
-    next({
+    return next({
       status: 400,
       message: "Order must include a deliverTo property.",
     });
@@ -25,7 +25,7 @@ function bodyHasMobileNumProperty(req, res, next) {
   const reqBody = res.locals.reqBody;
 
   if (!reqBody.mobileNumber) {
-    next({
+    return next({
       status: 400,
       message: "Order must include a mobileNumber property.",
     });
@@ -38,7 +38,7 @@ function bodyHasDishesProperty(req, res, next) {
   const reqBody = res.locals.reqBody;
 
   if (!reqBody.dishes || !reqBody.dishes.length || !Array.isArray(reqBody.dishes)) {
-    next({
+    return next({
       status: 400,
       message: "Order must include at least one dish.",
     });
@@ -53,9 +53,9 @@ function bodyHasDishQuantityProperty(req, res, next) {
   const indexesOfDishesWithoutQuantityProperty = dishes.reduce(
     (acc, dish, index) => {
       if (
-        !dish.quantity ||
-        !dish.quantity > 0 ||
-        typeof dish.quantity !== "number"
+        !dish ||
+        !Number.isInteger(dish.quantity) ||
+        dish.quantity <= 0
       ) {
         acc.push(index);
         return acc;
@@ -74,13 +74,13 @@ function bodyHasDishQuantityProperty(req, res, next) {
   if (indexesOfDishesWithoutQuantityProperty.length > 1) {
     const stringOfDishIndex = indexesOfDishesWithoutQuantityProperty.join(", ");
 
-    next({
+    return next({
       status: 400,
       message: `Dishes ${stringOfDishIndex} must have a quantity that is an integer greater than 0.`,
     });
   }
 
-  next({
+  return next({
     status: 400,
     message: `Dish ${indexesOfDishesWithoutQuantityProperty} must have a quantity that is an integer greater than 0.`,
   });
@@ -98,7 +98,7 @@ function orderExists(req, res, next) {
     return next();
   }
 
-  next({
+  return next({
     status: 404,
     message: `No matching order is found for orderId ${orderId}.`,
   });
@@ -114,7 +114,7 @@ function bodyIdMatchesRouteId(req, res, next) {
     if (reqBody.id === orderId) {
       return next();
     }
-    next({
+    return next({
       status: 400,
       message: `Order id does not match route id. Order: ${reqBody.id}, Route: ${orderId}`,
     });
@@ -126,16 +126,17 @@ function bodyIdMatchesRouteId(req, res, next) {
 function bodyHasStatusProperty(req, res, next) {
   const reqBody = res.locals.reqBody;
 
-  if (!reqBody.status || reqBody.status === "invalid") {
-    next({
+  const statuses = ["pending", "preparing", "out-for-delivery", "delivered"];
+  if (!statuses.includes(reqBody.status)) {
+    return next({
       status: 400,
       message:
         "Order must have a status of pending, preparing, out-for-delivery, or delivered.",
     });
   }
 
-  if (reqBody.status === "delivered") {
-    next({
+  if (res.locals.order.status === "delivered") {
+    return next({
       status: 400,
       message: "A delivered order cannot be changed.",
     });
@@ -149,7 +150,7 @@ function orderStatusIsPending(req, res, next) {
   const order = res.locals.order;
 
   if (order.status !== "pending") {
-    next({
+    return next({
       status: 400,
       message: "An order cannot be deleted unless it is pending.",
     });

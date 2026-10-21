@@ -8,10 +8,10 @@ const nextId = require("../utils/nextId");
 
 // Validation Functions for Create and Update functions:
 function bodyHasNameProperty(req, res, next) {
-  const { data = {} } = req.body;
+  const data = req.body.data || {};
 
   if (!data.name) {
-    next({
+    return next({
       status: 400,
       message: "Dish must include a name.",
     });
@@ -25,7 +25,7 @@ function bodyHasDescriptionProperty(req, res, next) {
   const reqBody = res.locals.reqBody;
 
   if (!reqBody.description) {
-    next({
+    return next({
       status: 400,
       message: "Dish must include a description.",
     });
@@ -37,8 +37,8 @@ function bodyHasDescriptionProperty(req, res, next) {
 function bodyHasPriceProperty(req, res, next) {
   const reqBody = res.locals.reqBody;
 
-  if (!reqBody.price || reqBody.price < 0 || typeof reqBody.price !== "number") {
-    next({
+  if (!Number.isInteger(reqBody.price) || reqBody.price <= 0) {
+    return next({
       status: 400,
       message:
         "Dish must include a price and it must be an integer greater than 0.",
@@ -52,7 +52,7 @@ function bodyHasImageUrlProperty(req, res, next) {
   const reqBody = res.locals.reqBody;
 
   if (!reqBody["image_url"]) {
-    next({
+    return next({
       status: 400,
       message: "Dish must include a image_url",
     });
@@ -72,7 +72,7 @@ function dishExists(req, res, next) {
     return next();
   }
 
-  next({
+  return next({
     status: 404,
     message: `Dish does not exist: ${dishId}.`,
   });
@@ -88,7 +88,7 @@ function bodyIdMatchesRouteId(req, res, next) {
       return next();
     }
 
-    next({
+    return next({
       status: 400,
       message: `Dish id does not match route id. Dish: ${reqBody.id}, Route: ${dishId}`,
     });
@@ -109,7 +109,7 @@ function update(req, res) {
     // Accessing each dish object key within the array
     let propName = existingDishProperties[i];
     // Updating each value if there is a difference between the existing dish and the req body dish
-    if (dish[propName] !== reqBody[propName]) {
+    if (propName !== "id" && dish[propName] !== reqBody[propName]) {
       dish[propName] = reqBody[propName];
     }
   }

@@ -1,36 +1,38 @@
 {
   "name": "zid-be-project-grub-dash-01-qualified",
   "version": "1.0.0",
-  "description": "",
+  "description": "Educational Express API for dishes and orders, with request validation and route tests.",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Thinkful-Ed/web-dev-programs",
-    "directory": "/library/zid-be-robust-server-structure-XX-assignment/solution"
+    "url": "https://github.com/TravisCow/GrubDash.git"
   },
   "main": "src/server.js",
   "scripts": {
-    "docker:build": "docker image build . -t thinkful-ed/zid-be-project-grub-dash-01-qualified",
-    "docker:run": "docker run --rm -it -p 5000:5000 thinkful-ed/zid-be-project-grub-dash-01-qualified",
-    "docker:stop": "docker stop $(docker ps -q)",
-    "docker:test": "docker run -t thinkful-ed/zid-be-project-grub-dash-01-qualified npm test",
     "start": "node src/server.js",
     "start:dev": "nodemon src/server.js",
-    "start:solution": "npm run -it docker:build && npm run docker:run",
-    "test": "jest",
-    "test:solution": "npm run docker:build && npm run docker:test",
-    "test:watch": "jest --watch"
+    "test": "jest --runInBand",
+    "test:watch": "jest --watch --runInBand",
+    "build:demo": "node scripts/build-demo.cjs"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "bootstrap": "^4.6.2",
     "cors": "^2.8.5",
     "cross-conf-env": "^1.2.1",
-    "express": "^4.17.1"
+    "express": "^4.17.1",
+    "jquery": "^3.7.1",
+    "open-iconic": "^1.1.1",
+    "popper.js": "^1.16.1",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "react-router-dom": "^5.3.4"
   },
   "devDependencies": {
-    "jest": "^26.4.2",
+    "esbuild": "^0.28.2",
+    "jest": "^30.5.2",
     "nodemon": "^2.0.4",
-    "supertest": "^5.0.0"
+    "supertest": "^7.3.1"
   }
 }
